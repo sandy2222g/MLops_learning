@@ -1,0 +1,19 @@
+{
+  "columns": [
+    "blur_score",
+    "brightness",
+    "contrast",
+    "edge_count",
+    "noise_level",
+    "entropy",
+    "saturation",
+    "sharpness",
+    "dark_ratio",
+    "white_ratio",
+    "contour_count",
+    "aspect_ratio",
+    "mean_red",
+    "mean_green",
+    "mean_blue"
+  ]
+}
