@@ -4,8 +4,34 @@ import util
 import io
 import numpy as np
 import traceback
+import json
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (np.int64, np.int32, np.integer)):
+            return int(obj)
+        if isinstance(obj, (np.float64, np.float32, np.floating)):
+            return float(obj)
+        if isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 app = Flask(__name__)
+app.json_encoder = NumpyEncoder # For older Flask
+# For newer Flask:
+class UpdatedJSONProvider(flask.json.provider.DefaultJSONProvider):
+    def default(self, o):
+        if isinstance(o, (np.int64, np.int32, np.integer)):
+            return int(o)
+        if isinstance(o, (np.float64, np.float32, np.floating)):
+            return float(o)
+        if isinstance(o, (np.ndarray,)):
+            return o.tolist()
+        return super().default(o)
+
+import flask.json
+app.json = UpdatedJSONProvider(app)
+
 CORS(app)
 
 @app.route('/get_column_names', methods=['GET'])
@@ -19,6 +45,7 @@ def get_column_names():
 @app.route('/predict_restoration', methods=['POST'])
 def predict_restoration():
     try:
+        print("Processing analysis request - v2.0-JSON-FIX") # Verification marker
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         
@@ -33,25 +60,23 @@ def predict_restoration():
         if base_features is None:
             return jsonify({'error': 'Failed to process image'}), 500
             
-        # 2. Get the prediction (this handles engineering & scaling internally)
+        # 2. Get the prediction
         prediction = util.get_prediction(img_bytes)
         
-        # 3. Combine base feature names with their values for a neat UI list
+        # 3. Combine base feature names with their values
         column_names = util.get_column_names()
         feature_list = []
         for name, value in zip(column_names, base_features):
             feature_list.append({
                 'name': name.replace('_', ' ').title(),
-                'value': round(float(value), 4) if isinstance(value, (int, float, np.float64, np.float32)) else value
+                'value': value
             })
 
-        response = jsonify({
+        return jsonify({
             'prediction': prediction,
             'features': feature_list,
             'status': 'success'
         })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
         
     except Exception as e:
         print("!!! SERVER ERROR !!!")
