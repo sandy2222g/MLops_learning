@@ -139,7 +139,11 @@ def load_saved_artifacts():
     __model = joblib.load(model_path)
 
     # Load Dataset and fit Scaler
-    dataset_path = os.path.join(os.path.dirname(__file__), "..", "model", "art_restoration_dataset_new.csv")
+    # For Docker compatibility, we check /model first, then fallback to relative path
+    dataset_path = "/model/art_restoration_dataset_new.csv"
+    if not os.path.exists(dataset_path):
+        dataset_path = os.path.join(os.path.dirname(__file__), "..", "model", "art_restoration_dataset_new.csv")
+    
     df = pd.read_csv(dataset_path)
     
     # Feature Engineering for scaler

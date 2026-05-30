@@ -3,7 +3,7 @@ services:
     build:
       context: ./server
     volumes:
-      - ./model:/app/model
+      - ./model:/model
       - ./server:/app
     ports:
       - "5000:5000"
