@@ -10,7 +10,7 @@ This guide explains how to deploy the Art Restoration project to an AWS EC2 inst
 SSH into your instance and install Docker:
 ```bash
 sudo apt update
-sudo apt install -y docker.io docker-compose
+sudo apt install -y docker.io docker-compose-v2
 sudo usermod -aG docker $USER
 # Log out and log back in for group changes to take effect
 ```
@@ -19,7 +19,7 @@ sudo usermod -aG docker $USER
 ```bash
 git clone <your-repo-url>
 cd website
-docker-compose up --build -d
+docker compose up --build -d
 ```
 
 ## 4. Verification
