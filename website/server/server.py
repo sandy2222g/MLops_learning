@@ -3,6 +3,7 @@ from flask_cors import CORS
 import util
 import io
 import numpy as np
+import traceback
 
 app = Flask(__name__)
 CORS(app)
@@ -53,7 +54,8 @@ def predict_restoration():
         return response
         
     except Exception as e:
-        print(f"Server error: {e}")
+        print("!!! SERVER ERROR !!!")
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 util.load_saved_artifacts()
