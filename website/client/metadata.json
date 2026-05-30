@@ -1,0 +1,6 @@
+{
+  "name": "ArtRestore AI",
+  "description": "Modern AI-powered artwork restoration analysis dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
