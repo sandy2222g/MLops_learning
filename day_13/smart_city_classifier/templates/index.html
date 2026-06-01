@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicEye - Smart City Flood Hazard Classifier</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Premium Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- ChartJS for modern analytics dashboards -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Background glowing ambient spots -->
+    <div class="ambient-glow spot-1"></div>
+    <div class="ambient-glow spot-2"></div>
+    <div class="ambient-glow spot-3"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo-icon">
+                    <i class="bi bi-eye-fill"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>CivicEye</h1>
+                    <span>SMART CITY PLATFORM</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="image-tab">
+                    <i class="bi bi-image"></i>
+                    <span>Image Diagnostic</span>
+                </button>
+                <button class="nav-item" data-tab="video-tab">
+                    <i class="bi bi-camera-reels"></i>
+                    <span>Video Surveillance</span>
+                </button>
+                <button class="nav-item" data-tab="history-tab">
+                    <i class="bi bi-database"></i>
+                    <span>Diagnostic Log</span>
+                </button>
+                <button class="nav-item" data-tab="system-tab">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span>System Analytics</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="system-status-indicator">
+                    <div class="status-dot pulsing"></div>
+                    <span id="hardware-badge">Detecting hardware...</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="workspace">
+            <!-- Header Bar -->
+            <header class="workspace-header">
+                <div class="header-title">
+                    <h2 id="page-title">Image Diagnostic Terminal</h2>
+                    <p id="page-subtitle">Process smart city imagery to classify real-time flood levels.</p>
+                </div>
+                
+                <!-- Model Switcher Control -->
+                <div class="header-actions">
+                    <div class="model-select-wrapper">
+                        <label for="model-selector"><i class="bi bi-gear-wide-connected"></i> YOLOv11 Weight:</label>
+                        <select id="model-selector" class="glass-select">
+                            <option value="medium" selected>Standard Model (YOLO11m-cls)</option>
+                            <option value="nano">Fast/Nano Model (YOLO11n-cls)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="live-clock">
+                        <i class="bi bi-clock"></i>
+                        <span id="current-time">00:00:00 AM</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Panels -->
+            <div class="workspace-content">
+                
+                <!-- TAB 1: IMAGE DIAGNOSTIC -->
+                <div class="tab-panel active" id="image-tab">
+                    <div class="dashboard-grid">
+                        <!-- Upload and Preview Column -->
+                        <div class="glass-card upload-section">
+                            <div class="card-header">
+                                <h3><i class="bi bi-cloud-arrow-up"></i> Ingest City Image</h3>
+                                <p>Upload orthophotos or CCTV screenshots for flood level diagnostic.</p>
+                            </div>
+                            
+                            <div class="drop-zone" id="image-drop-zone">
+                                <input type="file" id="image-input" accept="image/*" class="file-input-hidden">
+                                <div class="drop-zone-prompt">
+                                    <div class="prompt-icon">
+                                        <i class="bi bi-image-fill"></i>
+                                    </div>
+                                    <p class="main-prompt">Drag & drop city image here</p>
+                                    <p class="sub-prompt">or <span class="browse-link">browse files</span></p>
+                                    <span class="file-info-limit">Supports JPG, PNG, JPEG (Max 15MB)</span>
+                                </div>
+                                <div class="preview-container" style="display: none;">
+                                    <img id="image-preview" src="#" alt="Upload Preview">
+                                    <button class="remove-preview-btn" id="remove-image-btn">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="action-bar">
+                                <button class="btn btn-secondary" id="clear-image-btn" disabled>Clear</button>
+                                <button class="btn btn-primary" id="analyze-image-btn" disabled>
+                                    <span class="btn-text">Run YOLOv11 Diagnostic</span>
+                                    <div class="btn-spinner" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results and Recommendation Column -->
+                        <div class="glass-card result-section" id="image-result-card" style="opacity: 0.5; pointer-events: none;">
+                            <div class="card-header">
+                                <h3><i class="bi bi-activity"></i> Telemetry Analysis</h3>
+                                <p>Diagnostic data retrieved from YOLOv11 classification network.</p>
+                            </div>
+                            
+                            <div class="result-placeholder" id="image-result-placeholder">
+                                <i class="bi bi-cpu"></i>
+                                <p>Awaiting image upload and diagnostic execution</p>
+                            </div>
+
+                            <div class="result-content" id="image-result-content" style="display: none;">
+                                <!-- Hazard Indicator -->
+                                <div class="hazard-level-badge" id="image-hazard-badge">
+                                    <div class="hazard-icon">
+                                        <i class="bi bi-shield-check" id="image-status-icon"></i>
+                                    </div>
+                                    <div class="hazard-text">
+                                        <span class="badge-label">FLOOD HAZARD LEVEL</span>
+                                        <span class="badge-status" id="image-status-text">Safe</span>
+                                    </div>
+                                    <div class="hazard-conf">
+                                        <span class="conf-label">Confidence</span>
+                                        <span class="conf-val" id="image-confidence-text">98.5%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Probability Bars and Chart.js Doughnut Layout -->
+                                <div class="analytics-layout">
+                                    <div class="prob-bars-wrapper">
+                                        <h4 class="section-sub-title">Classification Probabilities</h4>
+                                        <div class="prob-item">
+                                            <div class="prob-info">
+                                                <span>Danger</span>
+                                                <span id="prob-val-danger">0%</span>
+                                            </div>
+                                            <div class="progress-bar-bg">
+                                                <div class="progress-bar-fill fill-danger" id="bar-danger" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="prob-item">
+                                            <div class="prob-info">
+                                                <span>Warning</span>
+                                                <span id="prob-val-warning">0%</span>
+                                            </div>
+                                            <div class="progress-bar-bg">
+                                                <div class="progress-bar-fill fill-warning" id="bar-warning" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="prob-item">
+                                            <div class="prob-info">
+                                                <span>Safe</span>
+                                                <span id="prob-val-safe">0%</span>
+                                            </div>
+                                            <div class="progress-bar-bg">
+                                                <div class="progress-bar-fill fill-safe" id="bar-safe" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <canvas id="image-chart"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Protocols -->
+                                <div class="protocol-card" id="image-protocol-card">
+                                    <h4 class="protocol-header"><i class="bi bi-shield-shaded"></i> Standard Emergency Protocols</h4>
+                                    <p class="protocol-description" id="image-protocol-desc">No active flooding detected. Continue standard surveillance operations.</p>
+                                    <ul class="protocol-list" id="image-protocol-list">
+                                        <li>Normal city operations continue.</li>
+                                        <li>Regular drainage maintenance.</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Latency / Diagnostics Metadata -->
+                                <div class="metadata-footer">
+                                    <div class="meta-item">
+                                        <i class="bi bi-clock-history"></i>
+                                        <span>Inference Latency: <strong id="image-latency-text">0.0 ms</strong></span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="bi bi-box"></i>
+                                        <span>Model Weights: <strong id="image-model-used">Standard (20.8MB)</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: VIDEO SURVEILLANCE -->
+                <div class="tab-panel" id="video-tab">
+                    <div class="dashboard-grid video-layout">
+                        <!-- Upload and Video Panel -->
+                        <div class="glass-card upload-section">
+                            <div class="card-header">
+                                <h3><i class="bi bi-camera-reels-fill"></i> Stream Feed Ingestion</h3>
+                                <p>Analyze CCTV video streams frame-by-frame for flood level transitions.</p>
+                            </div>
+                            
+                            <div class="drop-zone" id="video-drop-zone">
+                                <input type="file" id="video-input" accept="video/*" class="file-input-hidden">
+                                <div class="drop-zone-prompt">
+                                    <div class="prompt-icon">
+                                        <i class="bi bi-film"></i>
+                                    </div>
+                                    <p class="main-prompt">Drag & drop city CCTV video here</p>
+                                    <p class="sub-prompt">or <span class="browse-link">browse files</span></p>
+                                    <span class="file-info-limit">Supports MP4, MOV, AVI (Max 50MB)</span>
+                                </div>
+                                <div class="preview-container" style="display: none;">
+                                    <video id="video-preview" controls class="video-preview-el"></video>
+                                    <button class="remove-preview-btn" id="remove-video-btn">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="action-bar">
+                                <button class="btn btn-secondary" id="clear-video-btn" disabled>Clear</button>
+                                <button class="btn btn-primary" id="analyze-video-btn" disabled>
+                                    <span class="btn-text">Initiate Stream Analysis</span>
+                                    <div class="btn-spinner" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Video Results Panel -->
+                        <div class="glass-card result-section" id="video-result-card" style="opacity: 0.5; pointer-events: none;">
+                            <div class="card-header">
+                                <h3><i class="bi bi-graph-up-arrow"></i> Stream Analysis Dashboard</h3>
+                                <p>Hazard levels plotted across the CCTV timeline.</p>
+                            </div>
+                            
+                            <div class="result-placeholder" id="video-result-placeholder">
+                                <i class="bi bi-hourglass-split"></i>
+                                <p>Awaiting video ingestion and diagnostics execution</p>
+                            </div>
+
+                            <div class="result-content" id="video-result-content" style="display: none;">
+                                <!-- Overall Video Status -->
+                                <div class="hazard-level-badge" id="video-hazard-badge">
+                                    <div class="hazard-icon">
+                                        <i class="bi bi-exclamation-triangle" id="video-status-icon"></i>
+                                    </div>
+                                    <div class="hazard-text">
+                                        <span class="badge-label">AGGREGATED SURVEILLANCE STATE</span>
+                                        <span class="badge-status" id="video-status-text">Warning</span>
+                                    </div>
+                                    <div class="hazard-conf">
+                                        <span class="conf-label">FPS Downsample</span>
+                                        <span class="conf-val">2.0 frames/sec</span>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Line Chart plotting safe, warning, danger over time -->
+                                <div class="video-chart-wrapper">
+                                    <h4 class="section-sub-title">Flood Hazard Level Over Video Timeline (Seconds)</h4>
+                                    <div style="position: relative; height: 180px; width: 100%;">
+                                        <canvas id="video-timeline-chart"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Timeline State Transitions list -->
+                                <div class="timeline-transitions-wrapper">
+                                    <h4 class="section-sub-title">Chronological Event Logs</h4>
+                                    <div class="transitions-list" id="video-transitions-log">
+                                        <!-- transition items added by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Latency / Diagnostics Metadata -->
+                                <div class="metadata-footer">
+                                    <div class="meta-item">
+                                        <i class="bi bi-stopwatch"></i>
+                                        <span>Avg Frame Latency: <strong id="video-latency-text">0.0 ms</strong></span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="bi bi-grid-3x3-gap"></i>
+                                        <span>Processed Frames: <strong id="video-frames-text">0</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: DIAGNOSTIC LOG -->
+                <div class="tab-panel" id="history-tab">
+                    <div class="glass-card history-container">
+                        <div class="card-header history-header-wrapper">
+                            <div>
+                                <h3><i class="bi bi-database-fill-gear"></i> Smart City Ingestion Logs</h3>
+                                <p>Historical registry of all classified assets and system verdicts.</p>
+                            </div>
+                            <button class="btn btn-secondary" id="refresh-history-btn"><i class="bi bi-arrow-clockwise"></i> Refresh Log</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Timestamp</th>
+                                        <th>Target Asset</th>
+                                        <th>Type</th>
+                                        <th>Model Loaded</th>
+                                        <th>Classification Verdict</th>
+                                        <th>Confidence Rate</th>
+                                        <th>Latency</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <!-- rows will be added dynamically by JS -->
+                                    <tr>
+                                        <td colspan="9" class="table-empty-row">Loading historical ingestion records...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SYSTEM ANALYTICS -->
+                <div class="tab-panel" id="system-tab">
+                    <div class="system-grid">
+                        <!-- Model Specs Card -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h3><i class="bi bi-gear-wide-connected"></i> Model Specifications</h3>
+                                <p>Technical parameters of the currently running YOLOv11 classifier.</p>
+                            </div>
+                            <div class="specs-list">
+                                <div class="spec-item">
+                                    <span class="spec-label">Model Architecture</span>
+                                    <span class="spec-value">Ultralytics YOLOv11-Classification</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Configured Categories</span>
+                                    <span class="spec-value">['danger', 'warning', 'safe']</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Inference Mode</span>
+                                    <span class="spec-value">FP32 Single-precision</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Active Model Type</span>
+                                    <span class="spec-value" id="system-model-type">Standard (YOLO11m-cls)</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Weight File Size</span>
+                                    <span class="spec-value" id="system-weight-size">20.8 MB</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hardware Diagnostics -->
+                        <div class="glass-card">
+                            <div class="card-header">
+                                <h3><i class="bi bi-cpu-fill"></i> Hardware Environment</h3>
+                                <p>Hardware acceleration availability and status.</p>
+                            </div>
+                            <div class="specs-list">
+                                <div class="spec-item">
+                                    <span class="spec-label">Acceleration Engine</span>
+                                    <span class="spec-value" id="system-hardware">Detecting...</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">CUDA/GPU Driver</span>
+                                    <span class="spec-value" id="system-cuda">Checking driver...</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">API Port Configuration</span>
+                                    <span class="spec-value">Flask (WSGI / Port 5000)</span>
+                                </div>
+                                <div class="spec-item">
+                                    <span class="spec-label">Server Ingestion State</span>
+                                    <span class="spec-value color-emerald"><i class="bi bi-circle-fill pulsing"></i> Online & Listening</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Image Modal for Historical Previews -->
+    <div class="modal" id="image-modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" id="close-modal-btn"><i class="bi bi-x-lg"></i></button>
+            <div class="modal-body">
+                <img id="modal-img-preview" src="" alt="Diagnostic Preview" style="max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);">
+                <video id="modal-video-preview" controls style="display: none; max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);"></video>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
