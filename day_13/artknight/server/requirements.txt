@@ -1,0 +1,17 @@
+flask
+flask-cors
+joblib
+numpy
+pandas
+scikit-learn
+opencv-python-headless
+scikit-image
+gunicorn
+ultralytics
+python-dotenv
+google-generativeai
+sentence-transformers
+chromadb
+pypdf
+docx2txt
+python-multipart

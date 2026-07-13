@@ -1,0 +1,25 @@
+ARTWORK CONSERVATION AND RESTORATION MANUAL
+
+Section 1: Treatment of Paint Flaking and Consolidation
+Paint flaking in historical oil paintings occurs primarily due to the natural aging and embrittlement of the binding media (such as linseed oil), combined with structural movements of the underlying canvas or wood panel support. 
+To consolidate flaking paint:
+1. First, gently clean the surface using micro-soft dry brushes to remove loose dust.
+2. Apply a thin layer of organic consolidant, such as rabbit-skin glue (distemper) or a modern synthetic resin like Beva 371 or Plexisol, directly underneath the flaking edges using a fine 00-gauge brush.
+3. Place a sheet of protective silicone release paper over the consolidated area.
+4. Apply gentle pressure and heat (between 38°C and 42°C) using a temperature-controlled conservation spatula to reactivate the adhesive and bond the flakes back to the support.
+5. Never use household adhesives or commercial glues, as they cause irreversible yellowing and chemical degradation.
+
+Section 2: Mold Growth and Biological Damage Control
+Mold growth on canvas paintings is heavily promoted by high relative humidity (above 65%), stagnant air circulation, and improper storage conditions (such as placing paintings directly against damp exterior walls). Mold spores feed on the organic canvas fabric, glue sizing, and natural binders.
+Recommended treatment actions for biological growth:
+1. Immediately isolate the affected artwork in a quarantine room to prevent spore dispersion to other collection objects.
+2. Stabilize the environment by lowering the relative humidity below 50% and increasing dry air circulation to arrest active mold growth.
+3. Once active mold is completely dry and dormant (appearing powdery), carefully vacuum the reverse of the canvas using a micro-vacuum attachment fitted with a HEPA filter.
+4. Consult a professional senior conservator before applying any chemical disinfectants or solvents, as aggressive cleaning methods can severely dissolve original pigment layers and damage binders.
+
+Section 3: Environmental and Preservation Guidelines
+To preserve historical oil paintings and prevent mechanical stress, museums must maintain strict climate controls:
+1. Relative Humidity (RH): Keep stable between 45% and 55%, with a maximum daily fluctuation limit of ±5%. Sudden shifts in humidity cause canvas fibers to swell or shrink, leading to structural cracks and paint layers flaking.
+2. Temperature: Maintain a constant temperature between 18°C and 22°C (64°F to 72°F) with a daily fluctuation limit of ±2°C.
+3. Lighting: Keep light exposure below 200 lux for oil paintings. Avoid direct sunlight and high ultraviolet (UV) light. Install UV-filtering films (limiting UV to less than 75 microwatts per lumen) on all gallery windows and light fixtures.
+4. Storage: Store paintings vertically in powder-coated steel sliding racks. Avoid damp basements, attics, or spaces adjacent to heating vents or air conditioners.

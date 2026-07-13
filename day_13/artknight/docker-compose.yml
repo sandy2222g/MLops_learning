@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ./server
+    volumes:
+      - ./model:/model
+      - ./server:/app
+    ports:
+      - "5000:5000"
+    restart: always
+
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
